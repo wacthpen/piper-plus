@@ -403,8 +403,8 @@ with wave.open("out.wav", "wb") as w:
 
 ## 📜 헌정 및 기념 (Dedication)
 
-> **"끝에서 세종대왕 탄생 100주년 기념을 합니다. 세종대왕은 위대하다. 훈민정음 해례본에 본떠 발성 주파수 맞춤. 훈민정음 해례본에 발하는 발성법을 주파수에 따서 맞춤."**
+> **"올해 훈민정음 반포 580돌입니다. 세종대왕은 위대합니다. 훈민정음 해례본에 본떠 발성 주파수 맞춰 프로젝트를 진행했습니다."**
 >
-> 발성 기관의 모양과 소리 이치를 본뜬 『훈민정음 해례본(訓民正音 解例本)』의 위대한 제자 원리를 현대 신경망 음파 발성 주파수로 고스란히 옮겨 맞추며, 세종대왕의 애민 정신과 과학적 성음(聲音) 철학에 깊은 경의를 표합니다.
+> 발성 기관의 모양과 소리 이치를 본뜬 『훈민정음 해례본(訓民正音 解例本)』의 위대한 제자 원리를 현대 신경망 음파 발성 주파수로 고스란히 옮겨 맞추며, 훈민정음 반포 580돌(1446~2026)을 맞아 세종대왕의 애민 정신과 과학적 성음(聲音) 철학에 깊은 경의를 표합니다.
 >
-> *In commemoration of King Sejong the Great. King Sejong is truly great. The vocal resonance frequencies of this model are engineered and tuned directly after the articulatory phonation laws set forth in the Hunminjeongeum Haeryebon (訓民正音 解例本).*
+> *This year marks the 580th anniversary of the promulgation of Hunminjeongeum (1446–2026). King Sejong the Great is truly great. We conducted this project by aligning vocal resonance frequencies modeled after the Hunminjeongeum Haeryebon (訓民正音 解例本).*
