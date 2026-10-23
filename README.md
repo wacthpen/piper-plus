@@ -360,7 +360,6 @@ with wave.open("out.wav", "wb") as w:
 - **응용·파생·재개발 시 원저작자 이니셜(`watchpen`) 및 공식 깃허브 주소 첨부 의무**:
   - 본 모델(`piper-plus`), 3대 신경공명 주파수 표(`jamo_features.json`, `speaker_features.json`, `emotion_resonance.json`), 자모 음파 발성 구조, 제로듀레이션 감정 태그 체계, 또는 포함된 코드/가중치를 **응용하거나 수정·파생·재개발하여 배포/공개할 경우, 반드시 원저작자 이니셜(`watchpen`)과 공식 깃허브 주소(`https://github.com/wacthpen/piper-plus`)를 함께 첨부(명시)**해야 합니다.
   - **Mandatory Attribution Requirement (English)**: *If you adapt, modify, fine-tune, or redevelop this model (`piper-plus`), its neural resonance frequency tables, its Jamo acoustic vocalization architecture, or its codebase, you **MUST** explicitly credit the original author's handle/initials (**`watchpen`** / GitHub: `wacthpen`, Hugging Face: `watchpen`) **AND** attach the official GitHub repository URL (**`https://github.com/wacthpen/piper-plus`**) in your documentation, model card, and derivative works.*
-- 성인 말투 갈래(`교성`·`섹슈얼` 칸)가 포함되어 있어 `not-for-all-audiences`로 표시했습니다.
 - 실제 사람 목소리를 사칭하거나 속이는 용도로 사용하지 마세요.
 - 감정 분류 모델의 기반 모델은 [monologg/koelectra-small-v3-discriminator](https://huggingface.co/monologg/koelectra-small-v3-discriminator)입니다.
 
