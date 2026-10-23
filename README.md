@@ -79,6 +79,33 @@
 
 ---
 
+### 1-1. 『훈민정음 해례본』 음파 발성의 코드적·수학적 실증 (`표_바탕.json` · `학습주파수표만들기.py` · `해례본받침.py`)
+
+비유가 아니라 **실제 신경망의 수학적 연산 자체가 『훈민정음 해례본』의 원리 그대로만 돌아가도록** 구현되어 있습니다.
+
+#### ① 글자 이름표(0/1 기호 칸) 49개 전량 `0` 제거 — 오직 31개 물리적 음파 주파수만 작동
+- `resonance/jamo_features.json`(`표_바탕.json` 80열 + 태그 주파수 24열 = 104열)의 기본 80개 열을 검사하면, 초기 설계에 있던 `글자ㄱ~ㅎ`, `자리:어금니/혀/입술`, `방식:막힘/갈림`, `세기:예사/거센/된` 등 **기호 표시(One-Hot) 칸 49개는 전량 `0.0`**으로 비워져 있습니다 (`assert all(v == 0 ... if 이름[i] not in 잰)`).
+- 동시에 `models.py`(`jamo_feature_mode = "대체"`)에서 모든 자모 토큰은 개별 글자 임베딩 기억 칸(`self.emb(x)`)을 **100% 버리고**, 오직 `self.emb_f(jamo_feat[x])`만 인코더로 들어갑니다.
+- 즉, 신경망은 지금 들어온 글자가 `'ㄱ'`인지 `'ㅏ'`인지 번호나 기호로는 전혀 알 수 없고, **오직 31개의 물리적 음파 주파수 수치만 보고 소리를 합성합니다.**
+
+#### ② 초성·중성·종성 31개 주파수 칸과 『훈민정음 해례본』 구절의 1:1 직결
+1. **초성 16칸 — 해례본 `初聲有發動之義` (초성은 소리를 일으킨다) & 오음(아·설·순·치·후)·가획**
+   - 조음 위치(입술소리 `ㅂ/ㅍ`은 저역에 퍼지고 어금니소리 `ㄱ/ㅋ`은 중역에 몰리는 `초성터짐저중비·중고비`, `초성터짐kHz`, `초성터짐봉우리/퍼짐kHz`, `초성F2/F3휨`)와 가획(전청·차청·전탁에 따른 `초성숨`, `초성숨소리kHz/봉우리/퍼짐/저중비/중고비`, `초성세기`, `초성뒤음높이`, `초성울림kHz`) 실측치만 입력됩니다.
+   - 특히 초성 `ㅇ`을 `0`으로 비웠을 때 기억 칸(`self.emb`)으로 빠져 모음 연속 발음(`아아→아`, `으앗→와`)이 뭉개지던 현상을, 해례본 제자해 원문 **`「ㅇ。喉音。如欲字初發聲」`**(목청에서 소리를 여는 후음) 그대로 코드에 적용해 실제 목청 발성 주파수를 넣어 해결했습니다.
+2. **중성 7칸 — 천·지·인 단모음과 합용(이중모음)의 포먼트 출발·도착 궤적**
+   - 모음 시작 10% 지점(`공명F1·F2·F3출발`)과 75% 지점(`공명F1·F2·F3도착`), `모음길이` 7칸만으로 단모음과 합용 이중모음(`ㅘ, ㅙ, ㅝ, ㅞ, ㅢ` 등)의 성도 공명 이동 궤적을 그대로 표현합니다.
+3. **종성(받침) 8칸 + 연음 넘어감 16칸 — 해례본 종성해·합자해 원문 구현으로 받침 미분화 해결 (`해례본받침.py`)**
+   - 에폭 632 당시 단순 모음 중앙값 비율을 넣었을 때는 `간·감·강`이 소리로 갈리지 않고 모두 `칸`으로 발음되었으나(끝 40% 차이 3~8dB), 해례본의 5가지 원리를 코드로 구현해 넣자 받침 발성이 정확히 분리되었습니다(입력 거리 `ㄴ↔ㅇ` 0.98→1.95, `ㄱ↔ㅂ` 1.45→3.72):
+     - **`終聲復用初聲` & `ㆁ與ㄱ爲對 · 舌之ㄴㄷ · 脣之ㅁㅂ` (초성을 다시 쓰며 콧소리와 막힘소리는 조음 자리가 같다)**: 어금니(`ㄱ·ㆁ` `1,503Hz`), 혀(`ㄴ·ㄷ` `1,875Hz`, `ㄹ` `1,813Hz`), 입술(`ㅁ·ㅂ` `559Hz`) 짝을 묶어 구한 로커스 자리 주파수(`z2짝`, `z3짝`)를 `받침F2휨·F3휨`에 입력.
+     - **`八字可足用` (8종성 가족용)**: `ㄲ·ㅋ→ㄱ`, `ㅅ·ㅆ·ㅈ·ㅊ·ㅌ→ㄷ`, `ㅍ→ㅂ`으로 8종성 대표 자리 주파수를 매핑(`ㅎ`은 후음이라 입안 자리 휨 `0`).
+     - **`終聲有止定之義` & `不淸不濁之字 其聲不厲(舒緩) / 全淸…其聲爲厲(促急)`**: 받침 칸 자체에는 터짐·숨을 두지 않고, 불청불탁(`ㄴ·ㄹ·ㅁ·ㅇ`)에만 울림(`받침울림kHz`)과 비강 반공명(`받침콧소리골kHz`: `ㄴ 1.38 / ㅁ 1.30 / ㅇ 1.73kHz`)을 부여하며 막힘 받침(`닫힘비 > 0.5`)은 울림을 `0`으로 설정.
+     - **`終聲二字三字合用 自左而右` (합자해)**: 겹받침(`ㄳ, ㄵ, ㄶ, ㄺ, ㄻ, ㄼ, ㄽ, ㄾ, ㄿ, ㅀ, ㅄ`)은 왼쪽 첫 자음 자리(`받침F2휨·F3휨`)로 들어가 오른쪽 둘째 자음 자리(`받침둘째F2휨·F3휨`)로 닫히고, 길이는 두 소리의 합으로 계산하며, 모음 앞에서 다음 음절 첫소리로 발동하는 연음(넘어감)은 받침 줄의 초성 16칸에 함께 실어 모델이 문맥에 따라 선택하게 함.
+
+#### ③ 옛글자(영어 마찰음)까지 동일한 주파수 식 하나로 발성
+- 한국어 본문 녹음에 없는 옛자음 `ᅗ[f]`, `ᄫ[v]`, `ᅀ[z]`, `ᄼ[θ]`, `ᄽ[ð]`(번호 `384~388`) 역시 글자 기억 칸 없이 초성 16칸에 영어 마찰음 실측 주파수만 채워 넣었을 때 동일한 `emb_f` 식 하나로 발성됩니다.
+
+---
+
 ### 2. 왜 된소리를 피해갈 수 있었는가? — 자모 기억층(`self.emb`) 100% 우회 & 세기판별기 24배 보호 & 불규칙 발음 사전 대응
 
 기존 한국어 신경망 TTS들이 예사소리를 과도하게 된소리로 발음하는 근본 원인은 **글자별 임베딩 기억층(`self.emb`)과 문맥 기억의 경음화 과잉 일반화**에 있습니다. 학습 데이터에 `인권[인꿘]`, `손가락[손까락]`처럼 표기는 예사소리(`ㄱ`)인데 녹음은 된소리(`[ㄲ]`)인 단어가 들어 있으면, 기억층을 통과하는 신경망은 *"울림 받침 뒤의 평음은 된소리로 읽는다"*는 버릇을 외워 `손권`까지 `[손꿘]`으로 읽고 문장 곳곳의 평음을 경음으로 오염시킵니다.
@@ -363,9 +390,12 @@ with wave.open("out.wav", "wb") as w:
    - Emotions are injected via a 34-dimensional **Neural Resonance vector (`res`)** combining 3 vocal-tract resonance knobs (vocal-tract scale, chest resonance, actor's formant) and 15 measured voice-quality shifts (eGeMAPS 14 parameters + nasal coupling `A1-P0`).
    - A custom-trained **Context-Aware Korean Emotion Classifier (`emotion/emotion_int8.onnx`, KoELECTRA-small int8)** automatically analyzes sentence context to map emotion tags, speaking rate (`base length_scale = 0.85` × `1.08 / 1.0 / 0.93`), and resonance parameters without manual tagging.
    - Any inline emotion/phonation tags impart their acoustic resonance onto surrounding Jamo inside the encoder and are then stripped with **Zero-Duration (`_태그칸떼기` scatter compaction, 0 frames)** before the Duration Predictor — **producing pure emotional expression with zero spoken tag artifacts**.
-3. **Acoustic Character Vocalization via Direct Jamo Learning & *Hunminjeongeum Haeryebon* Engineering**:
-   - Modeled directly after the articulatory laws of ***Hunminjeongeum Haeryebon (訓民正音 解例本)*** — mapping the Five Sounds (velar, alveolar, bilabial, dental/palatal, glottal), stroke-addition tenseness/aspiration, and Heaven-Earth-Human vowel harmony (`ㆍ, ㅡ, ㅣ`) into 104-dimensional vocal-tract resonance matrices (`resonance/jamo_features.json`).
-   - **Archaic Hangul Jamo for Foreign/English Sounds & Konglish OOV Handling**: Because `self.emb` is bypassed in favor of shared resonance projection (`emb_f`), even low-resource archaic Hangul consonants (`ᅗ` `[f]`, `ᄫ`/`ㅸ` `[v]`, `ᅀ`/`ㅿ` `[z]`, `ᄼ` `[θ]`, `ᄽ` `[ð]`) and vowels (`ㆍ`, `ㆎ`) synthesize accurately from their resonance vectors alone, while unseen English words and acronyms are seamlessly converted into natural Korean-style pronunciation (Konglish / ARPAbet-to-Hangul + alphabet vocalization).
+3. **Acoustic Character Vocalization via Direct Jamo Learning & *Hunminjeongeum Haeryebon* Mathematical Realization**:
+   - **49 Symbolic Columns Zeroed Out — Only 31 Measured Acoustic Frequencies Active**: In `resonance/jamo_features.json` (80 base columns + 24 tag columns = 104 columns), all 49 symbolic/one-hot indicator columns (`letter ID`, `place`, `manner`, `tenseness`) are strictly set to `0.0` (`assert all(v == 0 ...)`), and `models.py` replaces `self.emb(x)` 100% with `self.emb_f(jamo_feat[x])`. The neural network never sees symbolic letter identities — it synthesizes speech solely from **31 physical acoustic frequency measurements**:
+     - **Initial Consonants (16 cols — `初聲有發動之義` & Five Sounds / Stroke Addition)**: Burst frequency/peak/spread, low-mid/mid-high energy ratios, aspiration duration/spectrum, intensity, F2/F3 locus shifts, voicing F1, and post-consonantal pitch. Initial `ㅇ` is explicitly populated with measured glottal initiation frequencies per Haeryebon's `「ㅇ。喉音。如欲字初發聲」` so consecutive vowels (`아아`, `으앗`) never fall back to `self.emb` or collapse.
+     - **Medial Vowels (7 cols — Heaven-Earth-Human `ㆍ, ㅡ, ㅣ` & Diphthong Trajectories)**: Formant frequencies at 10% (`F1·F2·F3 start`) and 75% (`F1·F2·F3 end`) plus vowel duration capture both monophthongs and compound diphthong trajectories.
+     - **Final Codas (8 cols + 16 Liaison cols — `終聲復用初聲`, `八字可足用`, `不淸不濁`, `自左而右` in `해례본받침.py`)**: At Epoch 632, naive median ratios caused `간·감·강` to collapse into `[칸]`. Implementing Haeryebon's five coda laws — pairing homorganic stops & nasals (`ㄱ·ㆁ` 1,503 Hz, `ㄴ·ㄷ` 1,875 Hz, `ㄹ` 1,813 Hz, `ㅁ·ㅂ` 559 Hz) for F2/F3 locus targets (`z2짝, z3짝`), mapping the 8-coda neutralization (`八字可足用`), assigning voicing & nasal anti-resonance zeros (`받침콧소리골kHz`: `ㄴ 1.38 / ㅁ 1.30 / ㅇ 1.73 kHz`) exclusively to `不淸不濁` sonorants (`ㄴ·ㄹ·ㅁ·ㅇ`), and encoding double codas (`ㄳ~ㅄ`) left-to-right (`自左而右`: 1st consonant closure locus → 2nd consonant locus + prevocalic liaison in the 16 initial columns) — cleanly separated coda distances (`ㄴ↔ㅇ` `0.98 → 1.95`, `ㄱ↔ㅂ` `1.45 → 3.72`).
+   - **Archaic Hangul Jamo for Foreign/English Sounds & Konglish OOV Handling**: Archaic Hangul consonants (`ᅗ` `[f]`, `ᄫ`/`ㅸ` `[v]`, `ᅀ`/`ㅿ` `[z]`, `ᄼ` `[θ]`, `ᄽ` `[ð]`, IDs `384~388`) are populated with measured English fricative frequencies in the exact same 16 initial-consonant columns and vocalized through the single shared `emb_f` projection, while unseen English words and acronyms are seamlessly converted into natural Korean-style pronunciation (Konglish / ARPAbet-to-Hangul + alphabet vocalization).
 4. **Ultra-Light, Near-Zero Heat on Mobile/CPU & Prosodic Ending Splitting (`갈라읽기`)**:
    - Combining single linear resonance projections (`emb_f`, `emb_g_res`, `emb_res`) with a **4-subband MB-iSTFT-VITS (PQMF) decoder** makes inference extremely lightweight, running in real time on mobile phones and standard CPUs with **near-zero thermal output**.
    - Removes mechanical word-boundary (`eojeol_boundary`) CumSum breaks and splits long sentences only at punctuation and Korean connective/sentence-final verb endings (`split_by_eomi`), trimming boundary tokens precisely via `durations` and joining chunks with a `10 ms (0.01 s)` breath gap.
