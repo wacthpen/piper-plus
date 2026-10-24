@@ -9,9 +9,12 @@
 > 📢 **[2026-10-24 Model Weights Updated]**
 > Replaced with the latest **Epoch 880 EMA (`piper-plus.onnx`)** model (word-boundary `eojeol_boundary` CumSum completely removed & excessive fortis/tensification generalization structurally suppressed). If you downloaded an earlier version, please re-download `piper-plus.onnx`.
 >
-> ⚠️ **[저작자 표시 및 깃허브 주소 첨부 의무 조건 (Mandatory Attribution Requirement)]**
-> 본 모델(`piper-plus`), 신경공명(발음·성우·감정 공명 주파수 표), 자모 음파 발성 구조, 제로듀레이션 태그 체계, 또는 포함 코드/가중치를 **응용하거나 수정·파생·재개발할 경우, 반드시 원저작자 이니셜(`watchpen`)과 공식 깃허브 주소(https://github.com/wacthpen/piper-plus)를 함께 첨부(명시)**해야 합니다.
-> *If you adapt, modify, fine-tune, or redevelop this model, its neural resonance tables, or its codebase, you MUST explicitly credit and include the original author's handle/initials (`watchpen` / GitHub: `wacthpen`, Hugging Face: `watchpen`) AND attach the official GitHub repository URL (`https://github.com/wacthpen/piper-plus`) in your documentation, model card, and derivative works.*
+> ⚠️ **[비상업용 사용 제한 및 저작자 표시 의무 (Non-Commercial Use Only & Mandatory Attribution)]**
+> - **비상업용 전용 (상업적 사용 시 별도 허가 필수)**: 본 모델(`piper-plus`)과 포함된 공명 주파수 표·코드·가중치는 **비상업용(개인 학습·학술 연구·비영리 목적)으로만 무료 사용이 가능**하며, **상업적 사용(유료 앱·웹 서비스 탑재, 영리 목적 콘텐츠 제작·배포, 기업용 활용 등)은 반드시 원저작자(`watchpen`)의 별도 사전 허가**를 받아야 합니다.
+> - **저작자 표시 및 깃허브 주소 첨부 의무**: 본 모델(`piper-plus`), 신경공명(발음·성우·감정 공명 주파수 표), 자모 음파 발성 구조, 제로듀레이션 태그 체계, 또는 포함 코드/가중치를 **응용하거나 수정·파생·재개발할 경우, 반드시 원저작자 이니셜(`watchpen`)과 공식 깃허브 주소(https://github.com/wacthpen/piper-plus)를 함께 첨부(명시)**해야 합니다.
+>
+> * **Non-Commercial Use Only (Separate Permission Required for Commercial Use)**: This model (`piper-plus`), its neural resonance tables, weights, and codebase are provided **strictly for non-commercial use (personal, academic, and non-profit research)**. **Any commercial use requires prior separate permission from the original author (`watchpen`).**
+> * **Mandatory Attribution**: If you adapt, modify, fine-tune, or redevelop this model, its neural resonance tables, or its codebase, you MUST explicitly credit and include the original author's handle/initials (`watchpen` / GitHub: `wacthpen`, Hugging Face: `watchpen`) AND attach the official GitHub repository URL (`https://github.com/wacthpen/piper-plus`) in your documentation, model card, and derivative works.
 
 ---
 
